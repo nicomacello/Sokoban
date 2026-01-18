@@ -3,35 +3,42 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField]private int speed = 5;
-    private Vector2 moveInput;
+    [SerializeField] private float speed = 5f;
+    private Vector2 movementInput;
     private Rigidbody rb;
 
-    public void Awake()
-    {
-        rb = GetComponent<Rigidbody>();
-    }
+    void Awake() => rb = GetComponent<Rigidbody>();
 
-
-
-    public void OnMove(InputValue value)
-    {
-        moveInput = value.Get<Vector2>();
-    }
+    public void OnMove(InputValue value) => movementInput = value.Get<Vector2>();
 
     private void FixedUpdate()
     {
-        Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y);
+        if (movementInput == Vector2.zero) 
+        {
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            return;
+        }
 
-        rb.linearVelocity = moveDirection * speed;
-        
+        Vector3 moveVelocity = new Vector3(movementInput.x, 0, movementInput.y) * speed;
+        Vector3 nextPos = transform.position + moveVelocity * Time.fixedDeltaTime;
+
+        if (IsFloorUnder(nextPos))
+        {
+            rb.linearVelocity = new Vector3(moveVelocity.x, rb.linearVelocity.y, moveVelocity.z);
+        }
+        else
+        {
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+        }
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    bool IsFloorUnder(Vector3 position)
     {
-        rb = GetComponent<Rigidbody>();
+        RaycastHit hit;
+        if (Physics.Raycast(position + Vector3.up * 0.1f, Vector3.down, out hit, 1.5f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+        {
+            return hit.collider.CompareTag("Floor");
+        }
+        return false;
     }
-
-
 }

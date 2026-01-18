@@ -11,40 +11,39 @@ public class PushableBlock : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (isMoving) return;
+        if (isMoving || !collision.gameObject.CompareTag("Player")) return;
 
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            // Calcoliamo la direzione dal Player verso il Blocco
-            Vector3 dir = transform.position - collision.transform.position;
-            
-            // Rendiamo la direzione secca (solo X o solo Z)
-            Vector3 moveDir = Vector3.zero;
-            if (Mathf.Abs(dir.x) > Mathf.Abs(dir.z))
-                moveDir = new Vector3(Mathf.Sign(dir.x), 0, 0);
-            else
-                moveDir = new Vector3(0, 0, Mathf.Sign(dir.z));
+        Vector3 dir = transform.position - collision.transform.position;
+        Vector3 moveDir = Mathf.Abs(dir.x) > Mathf.Abs(dir.z) ? 
+            new Vector3(Mathf.Sign(dir.x), 0, 0) : new Vector3(0, 0, Mathf.Sign(dir.z));
 
-            Debug.Log("Tentativo di movimento in direzione: " + moveDir);
-            TryMove(moveDir);
-        }
+        TryMove(moveDir);
     }
 
     private void TryMove(Vector3 direction)
     {
-        Vector3 targetPos = transform.position + direction * gridSize;
+        Vector3 targetPos = transform.position + (direction * gridSize);
 
-        // Visualizza il raggio nel Scene View per debug
-        Debug.DrawRay(transform.position, direction * gridSize, Color.red, 1f);
+        if (!IsFloorUnder(targetPos)) 
+        {
+            Debug.Log("Blocco: Niente pavimento lì!");
+            return;
+        }
 
-        if (!Physics.Raycast(transform.position, direction, gridSize, obstacleLayer))
+        if (!Physics.Raycast(transform.position + direction * 0.1f, direction, gridSize - 0.2f, obstacleLayer))
         {
             StartCoroutine(SmoothMove(targetPos));
         }
-        else
+    }
+
+    bool IsFloorUnder(Vector3 position)
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(position + Vector3.up, Vector3.down, out hit, 2f))
         {
-            Debug.Log("Movimento bloccato da un ostacolo!");
+            return hit.collider.CompareTag("Floor");
         }
+        return false;
     }
 
     private IEnumerator SmoothMove(Vector3 target)
@@ -52,14 +51,12 @@ public class PushableBlock : MonoBehaviour
         isMoving = true;
         Vector3 startPos = transform.position;
         float percent = 0;
-
         while (percent < 1f)
         {
             percent += Time.deltaTime * moveSpeed;
             transform.position = Vector3.Lerp(startPos, target, percent);
             yield return null;
         }
-
         transform.position = target;
         isMoving = false;
     }

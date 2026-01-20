@@ -5,43 +5,20 @@ public class PushableBlock : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float gridSize = 1f;
-    [SerializeField] private LayerMask obstacleLayer;
+    [SerializeField] private LayerMask obstacleLayer; 
 
     private bool isMoving = false;
 
-    private void OnCollisionEnter(Collision collision)
+    public bool TryPush(Vector3 direction)
     {
-        if (isMoving || !collision.gameObject.CompareTag("Player")) return;
+        if (isMoving) return false;
 
-        Vector3 dir = transform.position - collision.transform.position;
-        Vector3 moveDir = Mathf.Abs(dir.x) > Mathf.Abs(dir.z) ? 
-            new Vector3(Mathf.Sign(dir.x), 0, 0) : new Vector3(0, 0, Mathf.Sign(dir.z));
+        Vector3 targetPos = transform.position + direction * gridSize;
 
-        TryMove(moveDir);
-    }
-
-    private void TryMove(Vector3 direction)
-    {
-        Vector3 targetPos = transform.position + (direction * gridSize);
-
-        if (!IsFloorUnder(targetPos)) 
-        {
-            Debug.Log("Blocco: Niente pavimento lì!");
-            return;
-        }
-
-        if (!Physics.Raycast(transform.position + direction * 0.1f, direction, gridSize - 0.2f, obstacleLayer))
+        if (IsFloorUnder(targetPos) && !IsObstacleInWay(direction))
         {
             StartCoroutine(SmoothMove(targetPos));
-        }
-    }
-
-    bool IsFloorUnder(Vector3 position)
-    {
-        RaycastHit hit;
-        if (Physics.Raycast(position + Vector3.up, Vector3.down, out hit, 2f))
-        {
-            return hit.collider.CompareTag("Floor");
+            return true;
         }
         return false;
     }
@@ -50,14 +27,28 @@ public class PushableBlock : MonoBehaviour
     {
         isMoving = true;
         Vector3 startPos = transform.position;
-        float percent = 0;
-        while (percent < 1f)
+        float elapsed = 0;
+
+        while (elapsed < 1f)
         {
-            percent += Time.deltaTime * moveSpeed;
-            transform.position = Vector3.Lerp(startPos, target, percent);
+            elapsed += Time.deltaTime * moveSpeed;
+            transform.position = Vector3.Lerp(startPos, target, elapsed);
             yield return null;
         }
         transform.position = target;
-        isMoving = false;
+
+        if (IsIceUnder(transform.position))
+        {
+            Vector3 dir = (target - startPos).normalized;
+            if (!TryPush(dir)) isMoving = false;
+        }
+        else
+        {
+            isMoving = false;
+        }
     }
+
+    bool IsFloorUnder(Vector3 pos) => Physics.Raycast(pos + Vector3.up * 0.5f, Vector3.down, out RaycastHit h, 1.5f) && (h.collider.CompareTag("Floor") || h.collider.CompareTag("Ice"));
+    bool IsIceUnder(Vector3 pos) => Physics.Raycast(pos + Vector3.up * 0.5f, Vector3.down, out RaycastHit h, 1.5f) && h.collider.CompareTag("Ice");
+    bool IsObstacleInWay(Vector3 dir) => Physics.Raycast(transform.position + Vector3.up * 0.5f, dir, gridSize, obstacleLayer);
 }

@@ -36,19 +36,25 @@ public class PlayerMovement : MonoBehaviour
             if (Physics.Raycast(transform.position + Vector3.up * 0.5f, direction, out hit, gridSize, obstacleLayer))
             {
                 PushableBlock block = hit.collider.GetComponent<PushableBlock>();
-
-                if (block == null || !block.TryPush(direction))
+                if (block != null)
+                {
+                    if (!block.TryPush(direction)) { isMoving = false; break; }
+                }
+                else
                 {
                     isMoving = false;
-                    yield break; 
+                    break;
                 }
             }
 
-            if (!IsFloorUnder(targetPos)) { isMoving = false; yield break; }
+            if (!IsFloorUnder(targetPos)) { isMoving = false; break; }
 
             yield return StartCoroutine(SmoothLerp(targetPos));
 
-            if (!IsIceUnder(transform.position)) isMoving = false;
+            if (!IsIceUnder(transform.position))
+            {
+                isMoving = false; 
+            }
         }
     }
 
@@ -65,10 +71,26 @@ public class PlayerMovement : MonoBehaviour
         transform.position = target;
     }
 
-    bool IsFloorUnder(Vector3 pos) => Physics.Raycast(pos + Vector3.up * 0.5f, Vector3.down, out RaycastHit h, 1.5f) && (h.collider.CompareTag("Floor") || h.collider.CompareTag("Ice"));
-    bool IsIceUnder(Vector3 pos) => Physics.Raycast(pos + Vector3.up * 0.5f, Vector3.down, out RaycastHit h, 1.5f) && h.collider.CompareTag("Ice");
-    
-    Vector3 GetSnapDirection(Vector3 move) {
+    bool IsFloorUnder(Vector3 pos)
+    {
+        if (Physics.Raycast(pos + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 1.5f))
+        {
+            return hit.collider.CompareTag("Floor") || hit.collider.CompareTag("Ice");
+        }
+        return false;
+    }
+
+    bool IsIceUnder(Vector3 pos)
+    {
+        if (Physics.Raycast(pos + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 1.5f))
+        {
+            return hit.collider.CompareTag("Ice");
+        }
+        return false;
+    }
+
+    Vector3 GetSnapDirection(Vector3 move)
+    {
         if (Mathf.Abs(move.x) > Mathf.Abs(move.z)) return new Vector3(Mathf.Sign(move.x), 0, 0);
         return new Vector3(0, 0, Mathf.Sign(move.z));
     }

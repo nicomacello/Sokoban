@@ -2,7 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class LevelRoot {
+public class LevelRoot
+{
     public int gridWidth;
     public int gridHeight;
     public float gridSize;
@@ -10,81 +11,91 @@ public class LevelRoot {
 }
 
 [System.Serializable]
-public class LevelConfig {
+public class LevelConfig
+{
     public string levelName;
     public List<int> layoutData;
 }
 
-public class LevelGenerator : MonoBehaviour {
+public class LevelGenerator : MonoBehaviour
+{
+    [Header("Configurazione File")]
     public string fileName = "LevelData"; 
     public int levelToLoad = 0;
 
+    [Header("Prefabs Pavimento (Y = -0.6)")]
     public GameObject floorPrefab;      // ID 0
+    public GameObject icePrefab;        // ID 3
+
+    [Header("Prefabs Oggetti (Y = 0)")]
     public GameObject playerPrefab;     // ID 1
     public GameObject blockPrefab;      // ID 2
-    public GameObject icePrefab;        // ID 3
     public GameObject wallPrefab;       // ID 4
     public GameObject turretPrefab;     // ID 5
+    public GameObject heavyRockPrefab;  // ID 6
 
-    private void Start() {
+    [Header("Impostazioni Altezze")]
+    public float floorY = -0.6f;
+    public float objectY = 0f;
+
+    private void Start()
+    {
         GenerateLevel(levelToLoad);
     }
 
-    public void GenerateLevel(int index) {
+    public void GenerateLevel(int index)
+    {
         ClearLevel();
 
         TextAsset jsonAsset = Resources.Load<TextAsset>(fileName);
-        
-        if (jsonAsset == null) {
-            Debug.LogError("Errore: Il file " + fileName + " non è stato trovato nella cartella Resources!");
+        if (jsonAsset == null)
+        {
+            Debug.LogError($"File '{fileName}' non trovato in Resources!");
             return;
         }
 
         LevelRoot root = JsonUtility.FromJson<LevelRoot>(jsonAsset.text);
-        
-        if (index >= root.Levels.Count) {
-            Debug.LogWarning("Livello non trovato nel JSON!");
-            return;
-        }
+        if (root == null || index >= root.Levels.Count) return;
 
         LevelConfig currentLevel = root.Levels[index];
 
-        for (int i = 0; i < currentLevel.layoutData.Count; i++) {
+        for (int i = 0; i < currentLevel.layoutData.Count; i++)
+        {
             int x = i % root.gridWidth;
             int z = i / root.gridWidth;
-            
             int id = currentLevel.layoutData[i];
 
-            Vector3 position = new Vector3(x * root.gridSize, 0, -z * root.gridSize);
+            Vector3 groundPos = new Vector3(x * root.gridSize, floorY, -z * root.gridSize);
+            Vector3 objectPos = new Vector3(x * root.gridSize, objectY, -z * root.gridSize);
 
-            SpawnById(id, position);
+            SpawnLogic(id, groundPos, objectPos);
         }
     }
 
-    void SpawnById(int id, Vector3 pos) {
-        if (id != 3 && id != 4) {
-            Instantiate(floorPrefab, pos, Quaternion.identity, transform);
-        }
+    void SpawnLogic(int id, Vector3 groundPos, Vector3 objectPos)
+    {
+        if (id == 3)
+            Instantiate(icePrefab, groundPos, Quaternion.identity, transform);
+        else
+            Instantiate(floorPrefab, groundPos, Quaternion.identity, transform);
 
-        GameObject prefab = null;
-        switch (id) {
-            case 1: prefab = playerPrefab; break;
-            case 2: prefab = blockPrefab; break;
-            case 3: prefab = icePrefab; break;
-            case 4: prefab = wallPrefab; break;
-            case 5: prefab = turretPrefab; break;
-        }
+        GameObject prefab = id switch
+        {
+            1 => playerPrefab,
+            2 => blockPrefab,
+            4 => wallPrefab,
+            5 => turretPrefab,
+            6 => heavyRockPrefab,
+            _ => null
+        };
 
-        if (prefab != null) {
-            float y = (id == 3 || id == 4) ? 0f : 0.5f;
-            Vector3 finalPos = new Vector3(pos.x, y, pos.z);
-            Instantiate(prefab, finalPos, Quaternion.identity, transform);
-        }
+        if (prefab != null)
+            Instantiate(prefab, objectPos, Quaternion.identity, transform);
     }
 
-    public void ClearLevel() {
-        foreach (Transform child in transform) {
-            Destroy(child.gameObject);
-        }
+    public void ClearLevel()
+    {
+        for (int i = transform.childCount - 1; i >= 0; i--)
+            Destroy(transform.GetChild(i).gameObject);
     }
 }

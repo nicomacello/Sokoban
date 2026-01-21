@@ -3,7 +3,6 @@ using System.Collections;
 
 public class HeavyRock : MonoBehaviour
 {
-    [Header("Impostazioni")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask obstacleLayer;
@@ -46,7 +45,6 @@ public class HeavyRock : MonoBehaviour
     private bool CanMoveTo(Vector3 pos, Vector3 dir)
     {
         bool hasFloor = Physics.Raycast(pos + Vector3.up * 0.5f, Vector3.down, 1.5f);
-        // Controlla ostacoli
         bool hasObstacle = Physics.Raycast(transform.position + Vector3.up * 0.5f, dir, gridSize, obstacleLayer);
 
         return hasFloor && !hasObstacle;

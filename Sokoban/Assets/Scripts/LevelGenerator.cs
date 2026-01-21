@@ -19,22 +19,18 @@ public class LevelConfig
 
 public class LevelGenerator : MonoBehaviour
 {
-    [Header("Configurazione File")]
     public string fileName = "LevelData"; 
     public int levelToLoad = 0;
 
-    [Header("Prefabs Pavimento (Y = -0.6)")]
     public GameObject floorPrefab;      // ID 0
     public GameObject icePrefab;        // ID 3
 
-    [Header("Prefabs Oggetti (Y = 0)")]
     public GameObject playerPrefab;     // ID 1
     public GameObject blockPrefab;      // ID 2
     public GameObject wallPrefab;       // ID 4
     public GameObject turretPrefab;     // ID 5
     public GameObject heavyRockPrefab;  // ID 6
 
-    [Header("Impostazioni Altezze")]
     public float floorY = -0.6f;
     public float objectY = 0f;
 

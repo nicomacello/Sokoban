@@ -13,32 +13,42 @@ public class HeavyRock : MonoBehaviour
     {
         if (isMoving) return false;
 
-        Vector3 targetPos = transform.position + direction * gridSize;
-
-        if (CanMoveTo(targetPos, direction))
-        {
-            StartCoroutine(MoveRoutine(targetPos));
-            return true;
-        }
-        return false;
+        StartCoroutine(PushRoutine(direction));
+        return true;
     }
 
-    private IEnumerator MoveRoutine(Vector3 target)
+    private IEnumerator PushRoutine(Vector3 direction)
     {
         isMoving = true;
-        Vector3 startPos = transform.position;
-        float elapsed = 0;
+        bool keepMoving = true;
 
-        while (elapsed < 1f)
+        while (keepMoving)
         {
-            elapsed += Time.deltaTime * moveSpeed;
-            transform.position = Vector3.Lerp(startPos, target, elapsed);
-            yield return null;
+            Vector3 targetPos = transform.position + direction * gridSize;
+
+            if (!CanMoveTo(targetPos, direction))
+            {
+                keepMoving = false;
+                break;
+            }
+
+            Vector3 startPos = transform.position;
+            float elapsed = 0;
+            while (elapsed < 1f)
+            {
+                elapsed += Time.deltaTime * moveSpeed;
+                transform.position = Vector3.Lerp(startPos, targetPos, elapsed);
+                yield return null;
+            }
+            transform.position = targetPos; 
+
+            if (IsOnIce(targetPos))
+            {
+                keepMoving = false;
+            }
+          
         }
 
-        transform.position = target;
-
-        
         isMoving = false;
     }
 
@@ -48,5 +58,18 @@ public class HeavyRock : MonoBehaviour
         bool hasObstacle = Physics.Raycast(transform.position + Vector3.up * 0.5f, dir, gridSize, obstacleLayer);
 
         return hasFloor && !hasObstacle;
+    }
+
+    private bool IsOnIce(Vector3 pos)
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(pos + Vector3.up * 0.5f, Vector3.down, out hit, 1.5f))
+        {
+            if (hit.collider.CompareTag("Ice"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

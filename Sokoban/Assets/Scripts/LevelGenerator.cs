@@ -1,24 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[System.Serializable]
-public class LevelRoot
-{
-    public int gridWidth;
-    public int gridHeight;
-    public float gridSize;
-    public List<LevelConfig> Levels;
-}
-
-[System.Serializable]
-public class LevelConfig
-{
-    public string levelName;
-    public List<int> layoutData;
-}
-
 public class LevelGenerator : MonoBehaviour
 {
+
     public string fileName = "LevelData"; 
     public int levelToLoad = 0;
 
@@ -30,8 +15,9 @@ public class LevelGenerator : MonoBehaviour
     public GameObject wallPrefab;       // ID 4
     public GameObject turretPrefab;     // ID 5
     public GameObject heavyRockPrefab;  // ID 6
+    public GameObject exitPrefab;       // ID 7 
 
-    public float floorY = -0.6f;
+    public float floorY = -1f;
     public float objectY = 0f;
 
     private void Start()
@@ -82,11 +68,16 @@ public class LevelGenerator : MonoBehaviour
             4 => wallPrefab,
             5 => turretPrefab,
             6 => heavyRockPrefab,
+            7 => exitPrefab, 
             _ => null
         };
 
         if (prefab != null)
-            Instantiate(prefab, objectPos, Quaternion.identity, transform);
+        {
+            float spawnY = (id == 7) ? floorY + 0.05f : objectY;
+            Vector3 finalPos = new Vector3(objectPos.x, spawnY, objectPos.z);
+            Instantiate(prefab, finalPos, Quaternion.identity, transform);
+        }
     }
 
     public void ClearLevel()
@@ -95,3 +86,14 @@ public class LevelGenerator : MonoBehaviour
             Destroy(transform.GetChild(i).gameObject);
     }
 }
+
+[System.Serializable] public class LevelRoot { 
+    public int gridWidth; 
+    public int gridHeight; 
+    public float gridSize; 
+    public List<LevelConfig> Levels; 
+    }
+[System.Serializable] public class LevelConfig { 
+    public string levelName; 
+    public List<int> layoutData; 
+    }

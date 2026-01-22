@@ -353,7 +353,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 026c034e75facac42aae8d1b6a823441, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraScript
-  target: {fileID: 9112274890235795646, guid: 007cc0e5476fe2e4e90b5cacbd37a375, type: 3}
+  target: {fileID: 0}
   offset: {x: 0, y: 2, z: -10}
   smoothSpeed: 0.125
 --- !u!4 &354844411 stripped
@@ -504,7 +504,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &492544492
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -526,6 +526,7 @@ MonoBehaviour:
   wallPrefab: {fileID: 4785003172555923186, guid: 67799faf96a7760439f4e13df71b28dc, type: 3}
   turretPrefab: {fileID: 8695341820869581468, guid: 1900f2ff5a3d72c4e8aee7fccb707146, type: 3}
   heavyRockPrefab: {fileID: 6690113168814868297, guid: 86cc1cf27eaac2440b9e6ad6f495ce5f, type: 3}
+  exitPrefab: {fileID: 11978359528116661, guid: 17839fb7848f36d4781131e3594f5ddb, type: 3}
   floorY: -1
   objectY: 0
 --- !u!4 &492544493
@@ -826,7 +827,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1000138726
 Transform:
   m_ObjectHideFlags: 0

@@ -2,21 +2,32 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    [SerializeField] private float speed = 10f;
-    [SerializeField] private float lifeTime = 5f;
+    public float speed = 8f;
+    public float lifetime = 5f;
+    private Vector3 moveDir;
 
-    void Start()
+    public void Setup(Vector3 dir)
     {
-        Destroy(gameObject, lifeTime);
+        moveDir = dir.normalized;
+        Destroy(gameObject, lifetime);
     }
 
     void Update()
     {
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        transform.position += moveDir * speed * Time.deltaTime;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        Destroy(gameObject);
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("Player colpito!");
+            Destroy(gameObject);
+        }
+
+        if (other.gameObject.layer == LayerMask.NameToLayer("Obstacles"))
+        {
+            Destroy(gameObject);
+        }
     }
 }

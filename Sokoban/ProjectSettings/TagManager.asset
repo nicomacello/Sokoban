@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Floor
   - Ice
+  - Obstacle
   layers:
   - Default
   - TransparentFX

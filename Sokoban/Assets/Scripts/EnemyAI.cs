@@ -11,7 +11,7 @@ public class EnemyAI : MonoBehaviour
 
     private float nextFireTime;
 
-    void Update()
+    void LateUpdate()
     {
         if (Time.time >= nextFireTime)
         {

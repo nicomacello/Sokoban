@@ -3,7 +3,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     public float speed = 8f;
-    public float lifetime = 5f;
+    public float lifetime = 3f;
     private Vector3 moveDir;
 
     public void Setup(Vector3 dir)
@@ -19,7 +19,7 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.CompareTag("Obstacle"))
         {
             Debug.Log("Player colpito!");
             Destroy(gameObject);

@@ -156,9 +156,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29aace82266b4204d87a29b663625947, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  player: {fileID: 0}
-  bulletPrefab: {fileID: 2867111951878633311, guid: 133e3a8271d8ede4b8d5e551d21711d4, type: 3}
-  firePoint: {fileID: 6619507102970243559}
-  detectionRange: 10
+  projectilePrefab: {fileID: 2867111951878633311, guid: 133e3a8271d8ede4b8d5e551d21711d4, type: 3}
   fireRate: 1
-  rotationSpeed: 5
+  fireDirection: {x: 0, y: 0, z: 1}
+  firePoint: {fileID: 6619507102970243559}
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 8

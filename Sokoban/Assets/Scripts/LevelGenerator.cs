@@ -1,22 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-
 public class LevelGenerator : MonoBehaviour
 {
-    [Header("Configurazione File")]
     public string fileName = "LevelData"; 
     public int levelToLoad = 0;
     private int currentLevelIndex;
 
-    [Header("Riferimenti")]
     public CameraScript cameraScript;
 
-    [Header("Prefabs Pavimento (Y = -0.6)")]
     public GameObject floorPrefab;      // ID 0
     public GameObject icePrefab;        // ID 3
 
-    [Header("Prefabs Oggetti (Y = 0)")]
     public GameObject playerPrefab;     // ID 1
     public GameObject blockPrefab;      // ID 2
     public GameObject wallPrefab;       // ID 4
@@ -25,7 +20,6 @@ public class LevelGenerator : MonoBehaviour
     public GameObject exitPrefab;       // ID 7
     public GameObject nextLevelPortalPrefab; // ID 8
 
-    [Header("Parametri Fisici")]
     public float floorY = -0.6f;
     public float objectY = 0f;
 
@@ -41,13 +35,11 @@ public class LevelGenerator : MonoBehaviour
         if (jsonAsset == null) return;
 
         LevelRoot root = JsonUtility.FromJson<LevelRoot>(jsonAsset.text);
-        
         currentLevelIndex++;
 
-        // Reset se finiscono i livelli
         if (currentLevelIndex >= root.Levels.Count)
         {
-            Debug.Log("Ritorno al primo livello.");
+            Debug.Log("Ultimo livello completato. Torno all'inizio.");
             currentLevelIndex = 0;
         }
 
@@ -61,19 +53,18 @@ public class LevelGenerator : MonoBehaviour
         TextAsset jsonAsset = Resources.Load<TextAsset>(fileName);
         if (jsonAsset == null)
         {
-            Debug.LogError("File JSON non trovato in Resources!");
+            Debug.LogError($"Errore: File {fileName} non trovato in Assets/Resources");
             return;
         }
 
         LevelRoot root = JsonUtility.FromJson<LevelRoot>(jsonAsset.text);
-        if (index >= root.Levels.Count) return;
+        if (root == null || index >= root.Levels.Count) return;
 
         LevelConfig level = root.Levels[index];
-        Debug.Log($"Generando: {level.levelName} ({root.gridWidth}x{root.gridWidth})");
+        Debug.Log($"Generando: {level.levelName} - Indice: {index}");
 
         for (int i = 0; i < level.layoutData.Count; i++)
         {
-            // Calcolo coordinate basato sulla larghezza definita nel JSON
             int x = i % root.gridWidth;
             int z = i / root.gridWidth;
             int id = level.layoutData[i];
@@ -87,13 +78,10 @@ public class LevelGenerator : MonoBehaviour
 
     void SpawnObject(int id, Vector3 gPos, Vector3 oPos)
     {
-        // 1. Sempre il pavimento sotto
         if (id == 3) 
             Instantiate(icePrefab, gPos, Quaternion.identity, transform);
         else 
             Instantiate(floorPrefab, gPos, Quaternion.identity, transform);
-
-        // 2. Oggetto sopra
         GameObject prefab = id switch
         {
             1 => playerPrefab,
@@ -112,9 +100,7 @@ public class LevelGenerator : MonoBehaviour
             GameObject obj = Instantiate(prefab, new Vector3(oPos.x, finalY, oPos.z), Quaternion.identity, transform);
 
             if (id == 1 && cameraScript != null)
-            {
                 cameraScript.SetTarget(obj.transform);
-            }
         }
     }
 
@@ -127,15 +113,18 @@ public class LevelGenerator : MonoBehaviour
     }
 }
 
-    [System.Serializable] public class LevelRoot
-     { 
-        public int gridWidth; 
-        public int gridHeight; 
-        public float gridSize; 
-        public List<LevelConfig> Levels; 
-    }
-    [System.Serializable] public class LevelConfig 
-    { 
-        public string levelName; 
-        public List<int> layoutData; 
-    }
+[System.Serializable]
+public class LevelRoot
+{
+    public int gridWidth;
+    public int gridHeight; 
+    public float gridSize;
+    public List<LevelConfig> Levels;
+}
+
+[System.Serializable]
+public class LevelConfig
+{
+    public string levelName;
+    public List<int> layoutData; 
+}

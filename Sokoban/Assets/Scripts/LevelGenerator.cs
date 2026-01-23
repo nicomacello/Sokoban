@@ -1,29 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[System.Serializable]
-public class LevelRoot
-{
-    public int gridWidth;
-    public int gridHeight;
-    public float gridSize;
-    public List<LevelConfig> Levels;
-}
-
-[System.Serializable]
-public class LevelConfig
-{
-    public string levelName;
-    public List<int> layoutData;
-}
-
 public class LevelGenerator : MonoBehaviour
 {
-    
-    public string fileName = "LevelData";
+    public string fileName = "LevelData"; 
     public int levelToLoad = 0;
+    private int currentLevelIndex;
 
-    public CameraScript cameraScript; 
+    public CameraScript cameraScript;
+
     public GameObject floorPrefab;      // ID 0
     public GameObject icePrefab;        // ID 3
 
@@ -33,13 +18,32 @@ public class LevelGenerator : MonoBehaviour
     public GameObject turretPrefab;     // ID 5
     public GameObject heavyRockPrefab;  // ID 6
     public GameObject exitPrefab;       // ID 7
+    public GameObject nextLevelPortalPrefab; // ID 8
 
     public float floorY = -0.6f;
     public float objectY = 0f;
 
     private void Start()
     {
-        GenerateLevel(levelToLoad);
+        currentLevelIndex = levelToLoad;
+        GenerateLevel(currentLevelIndex);
+    }
+
+    public void LoadNextLevel()
+    {
+        TextAsset jsonAsset = Resources.Load<TextAsset>(fileName);
+        if (jsonAsset == null) return;
+
+        LevelRoot root = JsonUtility.FromJson<LevelRoot>(jsonAsset.text);
+        currentLevelIndex++;
+
+        if (currentLevelIndex >= root.Levels.Count)
+        {
+            Debug.Log("Ultimo livello completato. Torno all'inizio.");
+            currentLevelIndex = 0;
+        }
+
+        GenerateLevel(currentLevelIndex);
     }
 
     public void GenerateLevel(int index)
@@ -49,40 +53,42 @@ public class LevelGenerator : MonoBehaviour
         TextAsset jsonAsset = Resources.Load<TextAsset>(fileName);
         if (jsonAsset == null)
         {
-            Debug.LogError($"[LevelGenerator] File '{fileName}' non trovato nella cartella Assets/Resources!");
+            Debug.LogError($"Errore: File {fileName} non trovato in Assets/Resources");
             return;
         }
 
         LevelRoot root = JsonUtility.FromJson<LevelRoot>(jsonAsset.text);
-        if (root == null || index >= root.Levels.Count)
-        {
-            Debug.LogError("[LevelGenerator] Struttura JSON non valida o indice livello inesistente.");
-            return;
-        }
+        if (root == null || index >= root.Levels.Count) return;
 
-        LevelConfig currentLevel = root.Levels[index];
+        LevelConfig level = root.Levels[index];
+        Debug.Log($"Generando: {level.levelName} - Indice: {index}");
 
-        for (int i = 0; i < currentLevel.layoutData.Count; i++)
+        for (int i = 0; i < level.layoutData.Count; i++)
         {
             int x = i % root.gridWidth;
             int z = i / root.gridWidth;
-            int id = currentLevel.layoutData[i];
+            int id = level.layoutData[i];
 
             Vector3 groundPos = new Vector3(x * root.gridSize, floorY, -z * root.gridSize);
             Vector3 objectPos = new Vector3(x * root.gridSize, objectY, -z * root.gridSize);
 
-            SpawnLogic(id, groundPos, objectPos);
+            SpawnObject(id, groundPos, objectPos);
         }
     }
 
-    void SpawnLogic(int id, Vector3 groundPos, Vector3 objectPos)
+    public void ResetLevel()
     {
-        if (id == 3)
-            Instantiate(icePrefab, groundPos, Quaternion.identity, transform);
-        else
-            Instantiate(floorPrefab, groundPos, Quaternion.identity, transform);
+        Debug.Log("<color=yellow>Reset del livello corrente: </color>" + currentLevelIndex);
+        GenerateLevel(currentLevelIndex);
+    }
 
-        GameObject prefabToSpawn = id switch
+    void SpawnObject(int id, Vector3 gPos, Vector3 oPos)
+    {
+        if (id == 3) 
+            Instantiate(icePrefab, gPos, Quaternion.identity, transform);
+        else 
+            Instantiate(floorPrefab, gPos, Quaternion.identity, transform);
+        GameObject prefab = id switch
         {
             1 => playerPrefab,
             2 => blockPrefab,
@@ -90,33 +96,17 @@ public class LevelGenerator : MonoBehaviour
             5 => turretPrefab,
             6 => heavyRockPrefab,
             7 => exitPrefab,
+            8 => nextLevelPortalPrefab,
             _ => null
         };
 
-        if (prefabToSpawn != null)
+        if (prefab != null)
         {
-            float spawnY = (id == 7) ? floorY + 0.05f : objectY;
-            Vector3 finalPos = new Vector3(objectPos.x, spawnY, objectPos.z);
-            
-            GameObject spawnedObj = Instantiate(prefabToSpawn, finalPos, Quaternion.identity, transform);
+            float finalY = (id == 7 || id == 8) ? floorY + 0.05f : objectY;
+            GameObject obj = Instantiate(prefab, new Vector3(oPos.x, finalY, oPos.z), Quaternion.identity, transform);
 
-            if (id == 1)
-            {
-                SetupCamera(spawnedObj.transform);
-            }
-        }
-    }
-
-    void SetupCamera(Transform playerTransform)
-    {
-        if (cameraScript != null)
-        {
-            cameraScript.SetTarget(playerTransform);
-        }
-        else
-        {
-            CameraScript foundCam = Object.FindFirstObjectByType<CameraScript>();
-            if (foundCam != null) foundCam.SetTarget(playerTransform);
+            if (id == 1 && cameraScript != null)
+                cameraScript.SetTarget(obj.transform);
         }
     }
 
@@ -124,11 +114,23 @@ public class LevelGenerator : MonoBehaviour
     {
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
-            if (Application.isPlaying)
-                Destroy(transform.GetChild(i).gameObject);
-            else
-                DestroyImmediate(transform.GetChild(i).gameObject);
+            Destroy(transform.GetChild(i).gameObject);
         }
     }
 }
 
+[System.Serializable]
+public class LevelRoot
+{
+    public int gridWidth;
+    public int gridHeight; 
+    public float gridSize;
+    public List<LevelConfig> Levels;
+}
+
+[System.Serializable]
+public class LevelConfig
+{
+    public string levelName;
+    public List<int> layoutData; 
+}

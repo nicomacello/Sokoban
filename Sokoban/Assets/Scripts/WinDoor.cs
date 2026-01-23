@@ -3,6 +3,7 @@ using UnityEngine;
 public class WinDoor : MonoBehaviour
 {
     [SerializeField]private GameObject winPanel;
+    
 
     private void OnTriggerEnter(Collider other)
     {

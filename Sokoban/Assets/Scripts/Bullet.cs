@@ -2,32 +2,48 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    public float speed = 8f;
-    public float lifetime = 3f;
-    private Vector3 moveDir;
+    public float speed = 10f;
+    public float lifetime = 5f;
 
-    public void Setup(Vector3 dir)
+    void Start()
     {
-        moveDir = dir.normalized;
         Destroy(gameObject, lifetime);
     }
 
     void Update()
     {
-        transform.position += moveDir * speed * Time.deltaTime;
+        transform.Translate(Vector3.forward * speed * Time.deltaTime);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") || other.CompareTag("Obstacle"))
+        if (other.CompareTag("Wall") || other.CompareTag("Block"))
         {
-            Debug.Log("Player colpito!");
             Destroy(gameObject);
         }
-
-        if (other.gameObject.layer == LayerMask.NameToLayer("Obstacles"))
+        else if (other.CompareTag("Player"))
         {
+            TriggerGameOver();
             Destroy(gameObject);
+        }
+    }
+
+    void TriggerGameOver()
+    {
+        Debug.Log("<color=red>Giocatore colpito! Game Over.</color>");
+
+        GameObject deathPanel = GameObject.FindGameObjectWithTag("Death");
+
+        if (deathPanel != null)
+        {
+            deathPanel.transform.GetChild(0).gameObject.SetActive(true); 
+
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            Debug.LogWarning("DeathPanel non trovato! Assicurati di aver creato il pannello UI e assegnato il Tag 'DeathUI'.");
+            Time.timeScale = 0f;
         }
     }
 }

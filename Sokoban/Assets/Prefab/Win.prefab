@@ -67,7 +67,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7a1cd80a9e2b7f4b9edb8aa65c86aff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WinDoor
-  winPanel: {fileID: 0}
+  winPanel: {fileID: 1435974491223967707, guid: f921b1d4af29c8a419d1652f15d5fc73, type: 3}
 --- !u!1001 &4591440176701925733
 PrefabInstance:
   m_ObjectHideFlags: 0

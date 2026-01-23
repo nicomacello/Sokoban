@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 
 public class UIScript : MonoBehaviour
@@ -22,5 +23,11 @@ public class UIScript : MonoBehaviour
     public void Continue()
     {
         Time.timeScale = 1f;
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
+        EditorApplication.isPlaying = false;
     }
 }

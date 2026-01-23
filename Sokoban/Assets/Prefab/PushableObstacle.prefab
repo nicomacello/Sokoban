@@ -51,7 +51,7 @@ MonoBehaviour:
   gridSize: 1
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
 --- !u!65 &7574342444618261752
 BoxCollider:
   m_ObjectHideFlags: 0

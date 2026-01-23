@@ -76,6 +76,12 @@ public class LevelGenerator : MonoBehaviour
         }
     }
 
+    public void ResetLevel()
+    {
+        Debug.Log("<color=yellow>Reset del livello corrente: </color>" + currentLevelIndex);
+        GenerateLevel(currentLevelIndex);
+    }
+
     void SpawnObject(int id, Vector3 gPos, Vector3 oPos)
     {
         if (id == 3) 

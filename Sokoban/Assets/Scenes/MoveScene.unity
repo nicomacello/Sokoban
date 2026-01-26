@@ -297,6 +297,7 @@ MonoBehaviour:
   heavyRockPrefab: {fileID: 6690113168814868297, guid: 86cc1cf27eaac2440b9e6ad6f495ce5f, type: 3}
   exitPrefab: {fileID: 11978359528116661, guid: 17839fb7848f36d4781131e3594f5ddb, type: 3}
   nextLevelPortalPrefab: {fileID: 8494403524146548066, guid: 3bb98c541adf28647ab177eb94604d49, type: 3}
+  objectivePrefab: {fileID: 4717684093020022497, guid: 460f27c684cc1e243b04de03152f7c5b, type: 3}
   floorY: -1
   objectY: 0
 --- !u!4 &492544493

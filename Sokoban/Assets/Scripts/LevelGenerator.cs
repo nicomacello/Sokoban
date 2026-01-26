@@ -37,7 +37,9 @@ public class LevelGenerator : MonoBehaviour
     public GameObject turretPrefab;     
     public GameObject heavyRockPrefab;  
     public GameObject exitPrefab;       
-    public GameObject nextLevelPortalPrefab; 
+    public GameObject nextLevelPortalPrefab;
+    public GameObject objectivePrefab;
+
 
     [Header("Parametri Fisici")]
     public float floorY = -0.6f;
@@ -153,6 +155,7 @@ public class LevelGenerator : MonoBehaviour
             6 => heavyRockPrefab,
             7 => exitPrefab,
             8 => nextLevelPortalPrefab,
+            9 => objectivePrefab,
             _ => null
         };
 

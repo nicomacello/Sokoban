@@ -1,2 +1,22 @@
 fileFormatVersion: 2
 guid: de4b0169173a5f04293d9c9843e7efae
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - cameraScript: {instanceID: 0}
+  - floorPrefab: {instanceID: 0}
+  - icePrefab: {instanceID: 0}
+  - playerPrefab: {instanceID: 0}
+  - blockPrefab: {instanceID: 0}
+  - wallPrefab: {instanceID: 0}
+  - turretPrefab: {instanceID: 0}
+  - heavyRockPrefab: {instanceID: 0}
+  - exitPrefab: {instanceID: 0}
+  - nextLevelPortalPrefab: {instanceID: 0}
+  - objectivePrefab: {fileID: 4717684093020022497, guid: 460f27c684cc1e243b04de03152f7c5b, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
